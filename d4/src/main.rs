@@ -12,9 +12,13 @@ fn main() {
     let file = args.file;
     let input = std::fs::read_to_string(&file).unwrap();
 
-    let mut sum = 0;
+    let input_card_count = input.lines().count();
 
-    for line in input.lines() {
+    let mut sum = 0;
+    let mut count = 0;
+    let mut cards = vec![0; input_card_count];
+
+    for (card_id, line) in input.lines().enumerate() {
         let line_parts = line.split(':').collect::<Vec<&str>>();
         let [_game_id, game_data] = <[&str; 2]>::try_from(line_parts).ok().unwrap();
 
@@ -33,13 +37,24 @@ fn main() {
             .collect();
 
         let mut card_points = 0;
+        let mut winning_count = 0;
         for guess in guess_numbers {
             if winning_numbers.contains(&guess) {
                 card_points = if card_points == 0 { 1 } else { 2 * card_points };
+                winning_count += 1;
             }
         }
         sum += card_points;
+
+        let num_of_cards = cards[card_id] + 1;
+        for offset in 1..winning_count + 1 {
+            cards[card_id + offset] += num_of_cards;
+            count += num_of_cards;
+        }
     }
 
+    count += input_card_count;
+
     println!("Card points: {sum}");
+    println!("Card count: {count}");
 }
