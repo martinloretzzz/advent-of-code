@@ -24,14 +24,22 @@ fn main() {
 
     let mut lines = input.lines();
     let first_line = lines.next().unwrap();
-    let mut plant_ids: Vec<i64> = first_line
+    let plant_data: Vec<i64> = first_line
         .replace("seeds: ", "")
         .split(" ")
         .filter(|s| !s.is_empty())
         .map(|s| s.trim().parse::<i64>().unwrap())
         .collect();
 
-    let mut next_ids: Vec<i64> = Vec::new();
+    let mut plant_ids: Vec<i64> = Vec::new();
+
+    for (i, group) in plant_data.windows(2).enumerate() {
+        if i % 2 == 0 {
+            for id in group[0]..group[0] + group[1] {
+                plant_ids.push(id);
+            }
+        }
+    }
 
     let line_count = lines.clone().count();
     let mut parse_active = false;
@@ -40,11 +48,12 @@ fn main() {
             parse_active = false;
             min_soil_id = i64::MAX;
 
-            for id in plant_ids {
+            for i in 0..plant_ids.len() {
+                let id = plant_ids[i];
                 let mut soil_id = -1;
                 for seed_to_soil in &seed_to_soil_map {
                     if seed_to_soil.source_start <= id
-                        && id <= seed_to_soil.source_start + seed_to_soil.range
+                        && id < seed_to_soil.source_start + seed_to_soil.range
                     {
                         let offset = seed_to_soil.destination_start - seed_to_soil.source_start;
                         soil_id = id + offset;
@@ -56,13 +65,10 @@ fn main() {
                 if soil_id < min_soil_id {
                     min_soil_id = soil_id;
                 }
-                next_ids.push(soil_id);
-                println!("{soil_id}");
+                plant_ids[i] = soil_id;
             }
 
             seed_to_soil_map = Vec::new();
-            plant_ids = next_ids.clone();
-            next_ids = Vec::new();
         }
         if parse_active {
             let line_parts = line.split(' ').collect::<Vec<&str>>();
