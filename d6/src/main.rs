@@ -1,6 +1,6 @@
 fn main() {
-    let times = [56, 97, 78, 75];
-    let records = [546, 1927, 1131, 1139];
+    let times = [56977875];
+    let records: [i64; 1] = [546192711311139];
     let mut product = 1;
     for game_id in 0..times.len() {
         let time = times[game_id];
