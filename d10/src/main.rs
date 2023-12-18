@@ -64,17 +64,15 @@ fn move_alone_pipe(pipe_pointer: PipePointer, grid: &Vec<Vec<String>>) -> PipePo
 }
 
 fn get_grid(input: String) -> Vec<Vec<String>> {
-    let mut grid: Vec<Vec<String>> = Vec::new();
-    let lines = input.lines();
-    for line in lines {
-        let row: Vec<String> = line
-            .split("")
-            .filter(|s| !s.is_empty())
-            .map(|s| s.to_string())
-            .collect();
-        grid.push(row);
-    }
-    return grid;
+    return input
+        .lines()
+        .map(|line| {
+            line.split("")
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string())
+                .collect()
+        })
+        .collect();
 }
 
 fn get_start_pipes(grid: &Vec<Vec<String>>) -> (PipePointer, PipePointer) {
