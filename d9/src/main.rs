@@ -50,11 +50,15 @@ fn main() {
         }
 
         let len = diffs_container.len();
+        for i in 0..len {
+            diffs_container[i] = diffs_container[i].clone().into_iter().rev().collect();
+        }
+
         diffs_container[len - 1].push(0);
         for i in 0..len - 1 {
             let last_diffs = &diffs_container[len - i - 2];
             let diffs = &diffs_container[len - i - 1];
-            let diff = last_diffs.last().unwrap() + diffs.last().unwrap();
+            let diff = last_diffs.last().unwrap() - diffs.last().unwrap();
             // println!("{diff}");
             diffs_container[len - i - 2].push(diff);
         }
