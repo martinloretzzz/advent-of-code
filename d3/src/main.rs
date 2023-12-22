@@ -1,4 +1,5 @@
 use clap::Parser;
+use core::panic;
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -12,23 +13,16 @@ fn main() {
     let file = args.file;
     let input = std::fs::read_to_string(&file).unwrap();
 
-    let mut sum = 0;
-
-    let mut parts: Vec<Vec<bool>> = Vec::new();
-    for line in input.lines() {
-        let mut parts_row: Vec<bool> = Vec::new();
-        for pos in line.chars() {
-            let is_part = !pos.is_ascii_digit() && pos != '.';
-            parts_row.push(is_part);
-        }
-        parts.push(parts_row);
-    }
-
-    let y_size = input.lines().collect::<Vec<&str>>().len();
+    let mut numbers: Vec<Vec<i32>> = Vec::new();
+    let size = input.lines().collect::<Vec<&str>>().len();
     for (y, line) in input.lines().enumerate() {
-        let mut num = 0;
+        let mut num: u32 = 0;
         let mut num_start: i32 = -1;
         let mut num_end: i32 = -1;
+
+        let zero_row = vec![0; size];
+        numbers.push(zero_row);
+
         for (x, pos) in line.chars().enumerate() {
             let x_size = line.chars().collect::<Vec<char>>().len();
             if pos.is_ascii_digit() {
@@ -46,22 +40,8 @@ fn main() {
 
             if num_start != -1 && num_end != -1 {
                 // println!("{num}, {num_start}:{num_end}");
-
-                let mut is_part = false;
-                let y = y as i32;
-                for ys in y - 1..y + 2 {
-                    for xs in num_start - 1..num_end + 2 {
-                        // println!("{is_inside_grid} x:{xs} y:{ys}");
-                        if xs >= 0 && xs < x_size as i32 && ys >= 0 && ys < y_size as i32 {
-                            if parts[ys as usize][xs as usize] {
-                                is_part = true;
-                            }
-                        }
-                    }
-                }
-                if is_part {
-                    // println!("Part:{num}");
-                    sum += num;
+                for xs in num_start..num_end + 1 {
+                    numbers[y][xs as usize] = num as i32;
                 }
 
                 num = 0;
@@ -71,5 +51,31 @@ fn main() {
         }
     }
 
-    println!("Sum of part ids: {sum}"); // 519444
+    let mut sum = 0;
+    let mut sum_gear_ratios = 0;
+    for (y, line) in input.lines().enumerate() {
+        for (x, pos) in line.chars().enumerate() {
+            if !pos.is_ascii_digit() && pos != '.' {
+                let mut part_nums: Vec<i32> = Vec::new();
+                for ys in y - 1..y + 2 {
+                    for xs in x - 1..x + 2 {
+                        let part_num = numbers[ys][xs];
+                        if part_num != 0 && !part_nums.contains(&part_num) {
+                            part_nums.push(part_num);
+                            sum += part_num;
+                        }
+                    }
+                }
+                if pos == '*' {
+                    if part_nums.len() == 2 {
+                        let gear_ratio: i32 = part_nums[0] * part_nums[1];
+                        sum_gear_ratios += gear_ratio;
+                    }
+                }
+            }
+        }
+    }
+
+    println!("Sum of part ids: {sum}");
+    println!("Sum of gear ratios: {sum_gear_ratios}");
 }
